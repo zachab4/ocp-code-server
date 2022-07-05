@@ -1,0 +1,74 @@
+name: publish-ubi8
+
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+on:
+  push:
+    # Publish semver tags as releases.
+    tags: [ 'v*.*.*' ]
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  IMAGE_NAME: code-server
+  IMAGE_VERSION: 4.4.0
+  GHCR_REGISTRY: ghcr.io
+  GHCR_USER: ${{ github.repository_owner }}
+  GHCR_IMAGE: ${GHCR_REGISTRY}/${GHCR_USER}/${IMAGE_NAME}
+  QUAY_REGISTRY: quay.io
+  QUAY_USER: ${{ github.repository_owner }}
+  QUAY_IMAGE: ${QUAY_REGISTRY}/${QUAY_USER}/${IMAGE_NAME}
+
+
+jobs:
+  publish:
+
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # https://github.com/docker/login-action
+      - name: Log into GitHub Container Registry
+        if: github.event_name == 'pull_request'
+        uses: docker/login-action@dd4fa0671be5250ee6f50aedf4cb05514abda2c7
+        with:
+          registry: ${{ env.GHCR_REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # https://github.com/docker/login-action
+      - name: Log into Quay Container Registry
+        if: github.event_name == 'pull_request'
+        uses: docker/login-action@dd4fa0671be5250ee6f50aedf4cb05514abda2c7
+        with:
+          registry: ${{ env.QUAY_REGISTRY }}
+          username: ${{ secrets.QUAY_USER }}
+          password: ${{ secrets.QUAY_PASS }}
+
+      - name: kludge - build ubi8
+        run: |
+          . hacks/local_docker_build.sh
+          code_server_build ubi8
+
+      - name: kludge - push ubi8
+        if: github.event_name == 'pull_request'
+        run: |
+          TYPE=ubi8
+          docker tag custom-code-server:${TYPE}-base ${{ env.QUAY_IMAGE }}:${TYPE}-base
+          docker tag custom-code-server:${TYPE} ${{ env.QUAY_IMAGE }}:${TYPE}
+          docker tag custom-code-server:${TYPE} ${{ env.QUAY_IMAGE }}:${{ env.IMAGE_VERSION }}
+          docker tag custom-code-server:${TYPE} ${{ env.QUAY_IMAGE }}:latest
+
+          docker push ${{ env.QUAY_IMAGE }}:${TYPE}-base
+          docker push ${{ env.QUAY_IMAGE }}:${TYPE}
+          docker push ${{ env.QUAY_IMAGE }}:${{ env.IMAGE_VERSION }}
+          docker push ${{ env.QUAY_IMAGE }}:latest

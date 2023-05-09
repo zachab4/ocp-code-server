@@ -15,7 +15,7 @@ on:
   
 env:
   IMAGE_NAME: code-server
-  IMAGE_VERSION: 4.4.0
+  IMAGE_VERSION: 4.5.0
   GHCR_REGISTRY: ghcr.io
   GHCR_USER: ${{ github.repository_owner }}
   GHCR_IMAGE: ${GHCR_REGISTRY}/${GHCR_USER}/${IMAGE_NAME}
@@ -39,7 +39,7 @@ jobs:
       # https://github.com/docker/login-action
       - name: Log into GitHub Container Registry
         if: github.event_name == 'pull_request'
-        uses: docker/login-action@dd4fa0671be5250ee6f50aedf4cb05514abda2c7
+        uses: docker/login-action@v2
         with:
           registry: ${{ env.GHCR_REGISTRY }}
           username: ${{ github.actor }}
@@ -48,7 +48,7 @@ jobs:
       # https://github.com/docker/login-action
       - name: Log into Quay Container Registry
         if: github.event_name == 'pull_request'
-        uses: docker/login-action@dd4fa0671be5250ee6f50aedf4cb05514abda2c7
+        uses: docker/login-action@v2
         with:
           registry: ${{ env.QUAY_REGISTRY }}
           username: ${{ secrets.QUAY_USER }}
@@ -56,7 +56,7 @@ jobs:
 
       - name: kludge - build codercom
         run: |
-          . hacks/local_docker_build.sh
+          . setup/local_docker_build.sh
           code_server_build codercom
 
       - name: kludge - push codercom

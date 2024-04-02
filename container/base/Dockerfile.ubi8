@@ -1,9 +1,9 @@
-FROM registry.access.redhat.com/ubi8/ubi:8.7
+FROM registry.access.redhat.com/ubi9/ubi:9.3
 
 # https://github.com/opencontainers/image-spec/blob/main/annotations.md
 LABEL name="custom-code-server" \
       maintainer="koree@redhat.com" \
-      version="4.12.0" \
+      version="4.22.1" \
       summary="Custom Code Server" \
       org.opencontainers.image.description.vendor="codercom" \
       org.opencontainers.image.description="Custom Code Server base image with a basic collection of tools" \
@@ -23,11 +23,11 @@ RUN mkdir /home/coder && \
     chmod -R g=u /home/coder
 
 # install: code-server
-RUN rpm -ivh https://github.com/cdr/code-server/releases/download/v${CODE_SERVER_VERSION:-4.12.0}/code-server-${CODE_SERVER_VERSION:-4.12.0}-amd64.rpm
+RUN rpm -ivh https://github.com/cdr/code-server/releases/download/v${CODE_SERVER_VERSION:-4.22.1}/code-server-${CODE_SERVER_VERSION:-4.22.1}-amd64.rpm
 
 # install: oc
-ENV OC4_VERSION="4.8.10"
-ARG OC4_HASH="9d727adc9438bb7431344a7349ee88fbf05b5dbb856e678013a15c084b72cc9d"
+ENV OC4_VERSION="4.15.3"
+ARG OC4_HASH="aacc7dd27ef0671841777335463eca8228b9932d4786c008787252bf3a4bfa9a"
 ARG OC4_URL="https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/${OC4_VERSION}/openshift-client-linux.tar.gz"
 
 RUN curl -sL "${OC4_URL}" -o oc.tgz && \

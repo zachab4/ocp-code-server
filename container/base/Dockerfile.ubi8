@@ -3,7 +3,7 @@ FROM registry.access.redhat.com/ubi9/ubi:9.3
 # https://github.com/opencontainers/image-spec/blob/main/annotations.md
 LABEL name="custom-code-server" \
       maintainer="koree@redhat.com" \
-      version="4.22.1" \
+      version="4.23.0" \
       summary="Custom Code Server" \
       org.opencontainers.image.description.vendor="codercom" \
       org.opencontainers.image.description="Custom Code Server base image with a basic collection of tools" \
@@ -23,7 +23,7 @@ RUN mkdir /home/coder && \
     chmod -R g=u /home/coder
 
 # install: code-server
-RUN rpm -ivh https://github.com/cdr/code-server/releases/download/v${CODE_SERVER_VERSION:-4.22.1}/code-server-${CODE_SERVER_VERSION:-4.22.1}-amd64.rpm
+RUN rpm -ivh https://github.com/cdr/code-server/releases/download/v${CODE_SERVER_VERSION:-4.23.0}/code-server-${CODE_SERVER_VERSION:-4.23.0}-amd64.rpm
 
 # install: oc
 ENV OC4_VERSION="4.15.3"
